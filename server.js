@@ -16,6 +16,7 @@ const workRoutes = require("./routes/workRoutes");
 const hydrationRoutes = require("./routes/hydrationRoutes");
 const breakRoutes = require("./routes/breakRoutes");
 const reminderRoutes = require("./routes/reminderRoutes");
+const settingsRoutes = require("./routes/settingsRoutes");
 
 dotenv.config();
 const app = express();
@@ -48,6 +49,7 @@ app.use("/api/work", workRoutes);
 app.use("/api/hydration", hydrationRoutes);
 app.use("/api/break", breakRoutes);
 app.use("/api/reminder", reminderRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {

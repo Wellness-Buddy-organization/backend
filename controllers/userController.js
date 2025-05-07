@@ -110,7 +110,7 @@ exports.googleAuthCallback = (req, res) => {
   const token = jwt.sign(
     { userId: user._id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    { expiresIn: '24h' }
   );
 
   // Redirect to frontend with token (or handle as needed)

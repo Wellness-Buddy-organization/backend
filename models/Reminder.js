@@ -6,11 +6,11 @@ const reminderSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      index: true, // For faster queries by user
+      index: true,
     },
     type: {
       type: String,
-      enum: ["water", "meal", "eye_rest"],
+      enum: ["water", "meal", "eye_rest", "stretch", "posture", "meditation"],
       required: true,
     },
     time: {
@@ -25,6 +25,20 @@ const reminderSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    days: {
+      type: [String],
+      enum: ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+      default: ["mon", "tue", "wed", "thu", "fri"],
+    },
+    message: {
+      type: String,
+      default: "",
+    },
+    sound: {
+      type: String,
+      enum: ["chime", "bell", "drop", "ping", "soft", "calm"],
+      default: "chime",
+    }
   },
   { timestamps: true }
 );

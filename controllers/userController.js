@@ -114,5 +114,5 @@ exports.googleAuthCallback = (req, res) => {
   );
 
   // Redirect to frontend with token (or handle as needed)
-  res.redirect(`https://wellness-buddy-web.netlify.app/auth/callback?token=${token}`);
+  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 };

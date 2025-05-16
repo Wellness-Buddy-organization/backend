@@ -1,173 +1,277 @@
-# Software Architecture Documentation for Wellness Buddy
+# Wellness Buddy Backend
 
-## 1. Overview
+## Overview
+Wellness Buddy is a comprehensive wellness tracking application that helps users monitor various aspects of their wellbeing, including mood patterns, sleep quality, work-life balance, hydration, and break management. The backend is built with Node.js, Express.js, and MongoDB following the MVC (Model-View-Controller) architecture pattern.
 
-Wellness Buddy is a comprehensive wellness application designed to help users track and improve various aspects of their wellbeing. The system follows a client-server architecture with a microservices-inspired backend and a React-based frontend.
+## Table of Contents
+- [Architecture](#architecture)
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Setup Instructions](#setup-instructions)
+- [API Documentation](#api-documentation)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 2. Architectural Pattern
+## Architecture
 
-The system implements a **layered architecture** with microservices principles, providing several key benefits:
+Wellness Buddy implements the **MVC (Model-View-Controller)** architectural pattern to ensure separation of concerns, maintainability, and scalability.
 
-- **Separation of concerns**: Clear boundaries between data, business logic, and presentation
-- **Maintainability**: Modular components can be modified independently
-- **Scalability**: Individual services can be scaled according to demand
-- **Testability**: Isolated components are easier to test
-- **Flexibility**: Services can evolve independently
+### MVC Implementation
 
-## 3. System Components
+#### Model Layer
+Models represent the application's data structures and business logic:
+- Located in the `models/` directory
+- Implemented using Mongoose schemas
+- Handle data validation and database interactions
 
-### 3.1 Client-Side Architecture
+Example model (Mood.js):
+```javascript
+const mongoose = require('mongoose');
 
-The frontend application is built using React with the following architecture:
+const moodSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: true,
+    default: Date.now,
+  },
+  mood: {
+    type: String,
+    enum: ['happy', 'sad', 'neutral', 'angry', 'anxious'],
+    required: true,
+  },
+  // Other fields...
+}, { timestamps: true });
 
-- **Presentation Layer**: React components
-- **State Management**: React Context API
-- **Service Layer**: API integration services
-- **Routing Layer**: React Router
-
-### 3.2 Server-Side Architecture
-
-The backend follows an MVC (Model-View-Controller) pattern with these layers:
-
-- **Routes Layer**: Defines API endpoints
-- **Controller Layer**: Handles business logic and request processing
-- **Model Layer**: Represents data structures and database interactions
-- **Middleware Layer**: Provides cross-cutting concerns like authentication
-
-### 3.3 Database Architecture
-
-MongoDB is used as the primary data store with:
-
-- Document-based collections for user data and wellness metrics
-- Mongoose ODM for schema validation and business rules
-- Indexes for performance optimization
-
-## 4. Component Diagram
-
-```
-┌────────────────────────────────────────────────────────────────┐
-│                       Wellness Buddy Application                │
-└────────────────────────────────────────────────────────────────┘
-                                  │
-         ┌────────────────────────┴────────────────────────┐
-         │                                                  │
-┌────────▼────────┐                              ┌─────────▼────────┐
-│   Frontend       │                              │    Backend       │
-│ (React, Context) │                              │(Express, Node.js)│
-└────────┬────────┘                              └─────────┬────────┘
-         │                                                  │
-         │                                       ┌──────────┴──────────┐
-         │                                       │                     │
-┌────────▼────────┐                    ┌─────────▼────────┐   ┌────────▼────────┐
-│   UI Components  │                    │  API Controllers  │   │   MongoDB       │
-└────────┬────────┘                    └─────────┬────────┘   └─────────────────┘
-         │                                       │
-         │                                       │
-┌────────▼────────┐                    ┌─────────▼────────┐
-│  Service Layer   │                    │   Service Layer  │
-└────────┬────────┘                    └─────────┬────────┘
-         │                                       │
-         │                                       │
-┌────────▼────────┐                    ┌─────────▼────────┐
-│   API Client     │                    │   Data Models    │
-└─────────────────┘                    └─────────────────┘
+module.exports = mongoose.model('Mood', moodSchema);
 ```
 
-## 5. Architectural Decisions and Trade-offs
+#### Controller Layer
+Controllers handle the application logic:
+- Located in the `controllers/` directory
+- Process requests and interact with models
+- Format data for responses
 
-### 5.1 Microservices-Inspired Architecture
+Example controller (moodController.js):
+```javascript
+const Mood = require('../models/Mood');
 
-**Decision**: We implemented a microservices-inspired approach rather than a pure microservices architecture.
+exports.createMood = async (req, res) => {
+  try {
+    const { mood, notes, stress } = req.body;
+    const entry = new Mood({ 
+      userId: req.user._id,
+      mood,
+      notes,
+      stress: stress || 3,
+      date: new Date()
+    });
+    await entry.save();
+    res.status(201).json(entry);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+```
 
-**Rationale**:
-- The application is moderately complex but not at the scale requiring fully independent microservices
-- Reduced operational complexity while maintaining clear service boundaries
-- Single database for simplicity while keeping domain models separate
-- Easier development workflow for a small team
+#### View Layer
+In our RESTful API, "views" are implemented as JSON responses:
+- No explicit view files, as this is an API backend
+- JSON responses formatted by controllers
+- Client-side will handle presentation
 
-**Trade-offs**:
-- Some limitations on independent scaling
-- Domain coupling is higher than in pure microservices
+### Architecture Diagram
 
-### 5.2 MongoDB as Database
+```
+┌─────────────┐       ┌─────────────┐       ┌─────────────┐       ┌─────────────┐
+│             │       │             │       │             │       │             │
+│   Client    │───►   │   Routes    │───►   │ Controllers │───►   │   Models    │
+│             │       │             │       │             │       │             │
+└─────────────┘       └─────────────┘       └─────────────┘       └─────────────┘
+       ▲                                           │                     │
+       │                                           │                     │
+       │                                           │                     ▼
+       │                                           │              ┌─────────────┐
+       │                                           │              │             │
+       └───────────────────────────────────────────┘◄─────────────│  Database   │
+                                                                  │             │
+                                                                  └─────────────┘
+```
 
-**Decision**: MongoDB was chosen as the primary database.
+## Features
 
-**Rationale**:
-- Schema flexibility accommodates evolving wellness tracking features
-- Document model aligns well with user-centric data
-- BSON format naturally represents JSON data from the frontend
-- Horizontal scaling capabilities support future growth
+- **User Authentication**: JWT-based authentication with email/password and Google OAuth support
+- **Mood Tracking**: Record and analyze mood patterns
+- **Sleep Monitoring**: Track sleep duration and quality
+- **Work-Life Balance**: Monitor work hours and productivity
+- **Hydration Tracking**: Log daily water intake
+- **Break Management**: Schedule and track breaks during work
+- **Reminders**: Set custom wellness reminders
+- **Dashboard**: Comprehensive overview of wellness metrics
+- **Challenges**: Set and complete wellness-focused challenges
+- **Achievements**: Unlock achievements based on wellness activities
+- **Calendar Integration**: Schedule and manage wellness activities
+- **User Settings**: Customize application behavior
 
-**Trade-offs**:
-- Less strict data consistency compared to relational databases
-- Complex transactions are more challenging
+## Technology Stack
 
-### 5.3 JWT for Authentication
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: JWT, Passport.js with Google OAuth
+- **Validation**: Express Validator
+- **Security**: bcrypt for password hashing, rate limiting
+- **Development**: Nodemon for hot reloading
 
-**Decision**: JWT-based authentication with Passport.js integration.
+## Setup Instructions
 
-**Rationale**:
-- Stateless authentication reduces server-side storage requirements
-- Simplifies API gateway authorization
-- Supports multiple authentication providers (email/password, Google OAuth)
-- Better cross-domain support
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Wellness-Buddy-organization/backend.git
+   cd backend
+   ```
 
-**Trade-offs**:
-- Tokens must be stored securely on the client
-- Token revocation is more complex than session-based auth
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-## 6. API Design
+3. **Set up environment variables**
+   
+   Create `.env.development` and `.env.production` files with the following variables:
+   ```
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret
+   GOOGLE_CLIENT_ID=your_google_client_id
+   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   GOOGLE_CALLBACK_URL=your_callback_url
+   FRONTEND_URL=your_frontend_url
+   PORT=5000
+   ```
 
-The system employs a RESTful API design with the following principles:
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-- Resource-based endpoints (e.g., `/api/mood`, `/api/sleep`)
-- HTTP methods reflect operations (GET, POST, PUT, DELETE)
-- JSON for data exchange
-- JWT tokens for authentication
-- Appropriate HTTP status codes
-- Consistent error handling
+5. **For production**
+   ```bash
+   npm start
+   ```
 
-## 7. Security Architecture
+## API Documentation
 
-The application implements multiple security layers:
+### Authentication Endpoints
 
-- **Authentication**: JWT tokens, password hashing with bcrypt
-- **Authorization**: Role-based access control for resources
-- **Input Validation**: Express Validator for request validation
-- **Rate Limiting**: Prevents abuse and brute force attacks
-- **HTTPS**: All communications encrypted in production
-- **CORS**: Controlled cross-origin resource sharing
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/users/signup` | Register a new user |
+| POST | `/api/users/login` | Authenticate user |
+| GET | `/api/auth/google` | Google OAuth login |
+| GET | `/api/auth/google/callback` | Google OAuth callback |
 
-## 8. Scalability Considerations
+### Wellness Tracking Endpoints
 
-The architecture supports horizontal scaling through:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/dashboard/me` | Get dashboard data |
+| POST | `/api/mood` | Log mood entry |
+| GET | `/api/mood` | Get mood history |
+| POST | `/api/sleep` | Log sleep |
+| GET | `/api/sleep` | Get sleep history |
+| POST | `/api/hydration` | Log water intake |
+| GET | `/api/hydration` | Get hydration history |
+| POST | `/api/work` | Log work hours |
+| GET | `/api/work` | Get work history |
+| POST | `/api/break` | Log a break |
+| GET | `/api/break` | Get break history |
 
-- **Stateless API**: No server-side session state
-- **Containerization**: Application components can be containerized
-- **Load Balancing**: Multiple server instances can serve requests
-- **Database Sharding**: MongoDB supports sharding for data distribution
-- **Caching**: Opportunities for Redis integration for frequently accessed data
+### Features Endpoints
 
-## 9. Testing Strategy
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/reminder` | Create reminder |
+| GET | `/api/reminder` | Get reminders |
+| PUT | `/api/reminder/:id` | Update reminder |
+| DELETE | `/api/reminder/:id` | Delete reminder |
+| GET | `/api/settings` | Get user settings |
+| PUT | `/api/settings` | Update settings |
+| GET | `/api/challenge` | Get challenges |
+| POST | `/api/challenge` | Create challenge |
+| PUT | `/api/challenge/:id/progress` | Update challenge progress |
+| GET | `/api/achievement` | Get achievements |
+| GET | `/api/calendar` | Get calendar events |
+| POST | `/api/calendar` | Create calendar event |
+| PUT | `/api/calendar/:id` | Update calendar event |
+| DELETE | `/api/calendar/:id` | Delete calendar event |
 
-The application employs a multi-level testing approach:
+For detailed API documentation, please see [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md).
 
-- **Unit Tests**: For individual functions and components
-- **Integration Tests**: For API endpoints and service interactions
-- **End-to-End Tests**: For complete user workflows
-- **Load Tests**: For performance under high traffic scenarios
+## Project Structure
 
-## 10. Future Architecture Expansion
+```
+wellness-buddy-backend/
+├── config/               # Configuration files
+│   ├── db.js             # Database connection
+│   └── passport.js       # Authentication config
+├── controllers/          # Route controllers (MVC Controller layer)
+│   ├── userController.js
+│   ├── moodController.js
+│   ├── sleepController.js
+│   └── ...
+├── middleware/           # Custom middleware
+│   ├── auth.js           # Authentication middleware
+│   └── ...
+├── models/               # Mongoose models (MVC Model layer)
+│   ├── User.js
+│   ├── Mood.js
+│   ├── Sleep.js
+│   └── ...
+├── routes/               # API routes
+│   ├── userRoutes.js
+│   ├── moodRoutes.js
+│   ├── sleepRoutes.js
+│   └── ...
+├── docs/                 # Documentation
+│   ├── architecture.md
+│   └── API_DOCUMENTATION.md
+├── .env.development      # Development environment variables
+├── .env.production       # Production environment variables
+├── .gitignore            # Git ignore file
+├── package.json          # Dependencies and scripts
+├── README.md             # Project documentation
+└── server.js             # Entry point
+```
 
-The current architecture allows for several expansion paths:
+## Contributing
 
-- **Real-time Features**: WebSocket integration for live notifications
-- **Analytics Pipeline**: Separate data processing for wellness insights
-- **Machine Learning**: Predictive modeling for wellness recommendations
-- **Mobile Applications**: Native mobile clients connecting to the same API
-- **True Microservices**: Eventual evolution to fully independent services
+This project is part of a software architecture course assignment. Contributions are welcome following these steps:
 
-## 11. Conclusion
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature-name`
+3. Commit changes: `git commit -m 'Add feature'`
+4. Push to branch: `git push origin feature-name`
+5. Submit a pull request
 
-The Wellness Buddy architecture balances modern design principles with practical implementation considerations. The layered approach with clean separation of concerns provides a solid foundation for the application while enabling future growth and feature expansion.
+### Weekly Development Updates
+
+We maintain weekly development updates through:
+- [Blog posts on Medium](https://medium.com/@hashansooriyage) documenting architectural decisions and progress
+- [LinkedIn updates](https://linkedin.com/in/hashan-sooriyage) sharing key milestones
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## Development Team
+
+- [Hashan Sooriyage](https://github.com/hashan1998-it)
+- [Madhumini Kodithuwakku](https://github.com/Madhumini98)
+

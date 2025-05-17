@@ -261,8 +261,19 @@ This project is part of a software architecture course assignment. Contributions
 ### Weekly Development Updates
 
 We maintain weekly development updates through:
-- [Blog posts on Medium](https://medium.com/@hashansooriyage) documenting architectural decisions and progress
-- [LinkedIn updates](https://linkedin.com/in/hashan-sooriyage) sharing key milestones
+- [Blog 01: Your Wellness Buddy; A Must-Have App for Sri Lankan Tech Heroes](https://medium.com/@kodithuwakkumadhumini12/your-wellness-buddy-c2d99080a4ef)
+- [Blog 02: Wellness Buddy: Revolutionizing Well-Being for Sri Lanka’s Tech Industry](https://medium.com/@hashansooriyage/wellness-buddy-revolutionizing-well-being-for-sri-lankas-tech-industry-738c03a4c84c)
+- [Blog 03: Deep Dive into Software Architecture](https://medium.com/@kodithuwakkumadhumini12/deep-dive-into-software-architecture-38dbf2e52145)
+- [Blog 04: Why MVC? Unraveling the Magic Behind Modern Web Development](https://medium.com/@kodithuwakkumadhumini12/why-mvc-58f87a673593)
+- [Blog 05: Creating User-Friendly Health and Wellness Apps](https://medium.com/@kodithuwakkumadhumini12/creating-user-friendly-health-and-wellness-apps-080f3c307464)
+- [Blog 06: Designing Your Wellness Journey; The Power of UI/UX in Wellness Buddy](https://medium.com/@kodithuwakkumadhumini12/designing-your-wellness-journey-dc2038cdb429)
+- [Blog 07: Building a Scalable Node.js Backend for Wellness Buddy Application: Architecture Overview](https://medium.com/@hashansooriyage/building-a-scalable-node-js-backend-for-wellness-buddy-application-architecture-overview-7aea26cec113)
+- [Blog 08: The Controller-First Architecture; How We Structured Wellness-Buddy’s Frontend](https://medium.com/@kodithuwakkumadhumini12/the-controller-first-architecture-6e80dde97c5a)
+- [Blog 09: Authentication Strategies in Wellness Applications: Implementing JWT and OAuth with Passport.js](https://medium.com/@hashansooriyage/authentication-strategies-in-wellness-applications-implementing-jwt-and-oauth-with-passport-js-a737ef44f037)
+- [Blog 10: Building a Responsive Dashboard with React and Framer Motion in Wellness-Buddy](https://medium.com/@kodithuwakkumadhumini12/building-a-responsive-dashboard-with-react-and-framer-motion-in-wellness-buddy-32ffb58e962d)
+- [Blog 11: State Management and Data Flow in Wellness-Buddy](https://medium.com/@kodithuwakkumadhumini12/state-management-and-data-flow-in-wellness-buddy-e3cce3fe7389)
+- [Blog 12: Designing Effective REST APIs for Health Tracking: Lessons from the Wellness-Buddy Project](https://medium.com/@hashansooriyage/designing-effective-rest-apis-for-health-tracking-lessons-from-the-wellness-buddy-project-68d675c44a59)
+- [Blog 13: Reusable UI Component Design for Wellness Apps](https://medium.com/@kodithuwakkumadhumini12/reusable-ui-component-design-for-wellness-apps-d0879235739b)
 
 ## License
 

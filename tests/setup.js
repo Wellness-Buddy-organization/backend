@@ -1,29 +1,33 @@
-const { MongoMemoryServer } = require('mongodb-memory-server');
 const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
-let mongoServer;
+let mongod;
 
-// Set up the in-memory database before tests
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
-});
-
-// Clear all collections after each test
-afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const key in collections) {
-    const collection = collections[key];
-    await collection.deleteMany({});
+  mongod = await MongoMemoryServer.create();
+  const uri = mongod.getUri();
+  global.__MONGO_URI__ = uri;
+  process.env.MONGODB_URI = uri;
+  if (!mongoose.connection.readyState) {
+    await mongoose.connect(uri, {
+      bufferCommands: false, // Disable buffering for tests
+    });
   }
 });
 
-// Close database connection after all tests
 afterAll(async () => {
+  if (mongod) {
+    await mongod.stop();
+  }
   await mongoose.disconnect();
-  await mongoServer.stop();
 });
+
+beforeEach(async () => {
+  const collections = mongoose.connection.collections;
+  for (const key in collections) {
+    await collections[key].deleteMany({});
+  }
+}, 30000); // Increase timeout to 30 seconds
 
 // Silences console during tests
 global.console = {

@@ -1,12 +1,10 @@
-// tests/unit/models/Mood.test.js
+const mongoose = require('mongoose');
 const Mood = require('../../../models/Mood');
 
 describe('Mood Model Schema', () => {
   test('has correct schema definition', () => {
-    // Get the schema from the model
     const schema = Mood.schema.obj;
     
-    // Test schema properties
     expect(schema.userId).toBeDefined();
     expect(schema.userId.type).toBe(mongoose.Schema.Types.ObjectId);
     expect(schema.userId.required).toBe(true);
